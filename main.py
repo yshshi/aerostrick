@@ -19,15 +19,6 @@ obstacle_manager = ObstacleManager()
 enemy_manager = EnemyManager()
 shooting_manager = ShootingManager(player)
 
-# Add a crosshair for aiming
-crosshair = Entity(
-    model='quad',  # Simple 2D quad for the crosshair
-    color=color.red,  # Change color to red for better visibility
-    scale=0.02,  # Make it smaller
-    parent=camera.ui,  # Attach to the UI layer
-    position=(0, 0, 0)  # Center of the screen
-)
-
 # Add an aiming line
 aiming_line = Entity(
     model='line',  # Use the 'line' model
@@ -60,10 +51,25 @@ quit_button = Button(
 
 # Function to restart the game
 def restart_game():
-    player.entity.position = (0, 0, 0)  # Reset player position
-    enemy_manager.enemies.clear()  # Clear all enemies
-    obstacle_manager.obstacles.clear()  # Clear all obstacles
-    shooting_manager.bullets.clear()  # Clear all bullets
+    # Reset player position
+    player.entity.position = (0, 0, 0)
+
+    # Clear and destroy all enemies
+    for enemy in enemy_manager.enemies:
+        destroy(enemy)
+    enemy_manager.enemies.clear()
+
+    # Clear and destroy all obstacles
+    for obstacle in obstacle_manager.obstacles:
+        destroy(obstacle)
+    obstacle_manager.obstacles.clear()
+
+    # Clear and destroy all bullets
+    for bullet in shooting_manager.bullets:
+        destroy(bullet)
+    shooting_manager.bullets.clear()
+
+    # Hide the game over screen
     game_over_text.enabled = False
     restart_button.enabled = False
     quit_button.enabled = False
@@ -96,6 +102,9 @@ def update():
         # Update aiming line position and direction
         aiming_line.position = player.entity.position
         aiming_line.rotation = player.entity.rotation
+
+        # Ensure the aiming line points forward
+        aiming_line.look_at(player.entity.position + player.entity.forward)
 
 # Run the game
 app.run()

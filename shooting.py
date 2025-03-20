@@ -18,22 +18,35 @@ class ShootingManager:
         print("Bullet shot!")  # Debugging
 
     def update(self, enemies):
+        bullets_to_remove = []  # Store bullets to remove
+
         # Move bullets forward
-        for bullet in self.bullets[:]:  # Iterate over a copy of the list
-            bullet.z += 1.0  # Increased bullet speed
+        for bullet in self.bullets[:]:  
+            if not bullet.enabled:  # Skip if bullet is already destroyed
+                continue
+
+            # Move the bullet forward
+            bullet.z += 1.0  
 
             # Check for collisions with enemies
-            for enemy in enemies[:]:  # Iterate over a copy of the list
+            for enemy in enemies[:]:  
+                if not enemy.enabled:  
+                    continue
+
                 if bullet.intersects(enemy):
-                    print("Enemy hit!")  # Debugging
-                    self.bullets.remove(bullet)  # Remove bullet from the list
+                    print("Enemy hit!")  
+                    bullets_to_remove.append(bullet)  # Mark bullet for removal
                     enemies.remove(enemy)  # Remove enemy from the list
-                    destroy(bullet)  # Destroy the bullet
                     destroy(enemy)  # Destroy the enemy
-                    break  # Exit the loop after destroying the enemy
+                    break  
 
             # Remove bullet if it goes off-screen
-            if bullet.z > 20:
+            if bullet.enabled and bullet.z > 20:
+                bullets_to_remove.append(bullet)  
+
+        # Remove bullets outside the loop to prevent modifying the list while iterating
+        for bullet in bullets_to_remove:
+            if bullet in self.bullets:  # Ensure bullet is still in the list
                 self.bullets.remove(bullet)
-                destroy(bullet)
-                print("Bullet destroyed!")  # Debugging
+                destroy(bullet)  
+                print("Bullet destroyed!")  
