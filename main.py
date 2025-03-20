@@ -19,13 +19,39 @@ obstacle_manager = ObstacleManager()
 enemy_manager = EnemyManager()
 shooting_manager = ShootingManager(player)
 
-# Add an aiming line
-aiming_line = Entity(
-    model='line',  # Use the 'line' model
+# Add a crosshair for aiming (fixed at the center of the screen)
+crosshair = Entity(
+    model='quad',  # Simple 2D quad for the crosshair
     color=color.white,
+    scale=0.02,
+    parent=camera.ui,  # Attach to the UI layer
+    position=(0, 0, 0)  # Center of the screen
+)
+
+# Add an aiming indicator (crosshair-like shape: -|-)
+aiming_indicator = Entity(
+    model=None,  # No base model, we'll add custom shapes
     parent=player.entity,  # Attach to the player
-    scale=(0.1, 0.1, 10),  # Adjust the scale to make it visible
+    position=(0, 0, 2),  # Position in front of the player
     rotation=(0, 0, 0)  # Align with the player's forward direction
+)
+
+# Add horizontal line (-)
+horizontal_line = Entity(
+    parent=aiming_indicator,
+    model='cube',
+    color=color.white,
+    scale=(0.5, 0.02, 0.02),  # Thin and long horizontal line
+    position=(0, 0, 0)  # Center of the crosshair
+)
+
+# Add vertical line (|)
+vertical_line = Entity(
+    parent=aiming_indicator,
+    model='cube',
+    color=color.white,
+    scale=(0.02, 0.5, 0.02),  # Thin and long vertical line
+    position=(0, 0, 0)  # Center of the crosshair
 )
 
 # Game over screen
@@ -97,14 +123,11 @@ def update():
 
         # Shoot when spacebar is pressed
         if held_keys['space']:
-            shooting_manager.shoot()
+            shooting_manager.shoot(aiming_indicator.forward)  # Shoot in the direction of the aiming indicator
 
-        # Update aiming line position and direction
-        aiming_line.position = player.entity.position
-        aiming_line.rotation = player.entity.rotation
-
-        # Ensure the aiming line points forward
-        aiming_line.look_at(player.entity.position + player.entity.forward)
+        # Update aiming indicator position and direction
+        aiming_indicator.position = player.entity.position + player.entity.forward * 2  # Move in front of the player
+        aiming_indicator.rotation = player.entity.rotation  # Align with the player's forward direction
 
 # Run the game
 app.run()
