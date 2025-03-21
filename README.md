@@ -18,7 +18,7 @@ Here’s a clean and professional **GitHub repository description** for your gam
 ### **Installation & Run**  
 1. Clone the repository:  
    ```bash
-   git clone https://github.com/YOUR_USERNAME/Aerostrike.git
+   git clone https://github.com/yshshi/aerostrick
    cd Aerostrike
    ```  
 2. Install dependencies:  
