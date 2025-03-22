@@ -19,41 +19,6 @@ obstacle_manager = ObstacleManager()
 enemy_manager = EnemyManager()
 shooting_manager = ShootingManager(player)
 
-# Add a crosshair for aiming (fixed at the center of the screen)
-crosshair = Entity(
-    model='quad',  # Simple 2D quad for the crosshair
-    color=color.white,
-    scale=0.02,
-    parent=camera.ui,  # Attach to the UI layer
-    position=(0, 0, 0)  # Center of the screen
-)
-
-# Add an aiming indicator (crosshair-like shape: -|-)
-aiming_indicator = Entity(
-    model=None,  # No base model, we'll add custom shapes
-    parent=player.entity,  # Attach to the player
-    position=(0, 0, 2),  # Position in front of the player
-    rotation=(0, 0, 0)  # Align with the player's forward direction
-)
-
-# Add horizontal line (-)
-horizontal_line = Entity(
-    parent=aiming_indicator,
-    model='cube',
-    color=color.white,
-    scale=(0.5, 0.02, 0.02),  # Thin and long horizontal line
-    position=(0, 0, 0)  # Center of the crosshair
-)
-
-# Add vertical line (|)
-vertical_line = Entity(
-    parent=aiming_indicator,
-    model='cube',
-    color=color.white,
-    scale=(0.02, 0.5, 0.02),  # Thin and long vertical line
-    position=(0, 0, 0)  # Center of the crosshair
-)
-
 # Game over screen
 game_over_text = Text(
     text="Game Over!",
@@ -78,22 +43,27 @@ quit_button = Button(
 # Function to restart the game
 def restart_game():
     # Reset player position
-    player.entity.position = (0, 0, 0)
+    player.entity.position = (0, -2, 0)  # Move player slightly below the center
 
     # Clear and destroy all enemies
     for enemy in enemy_manager.enemies:
         destroy(enemy)
     enemy_manager.enemies.clear()
 
-    # Clear and destroy all obstacles
+    # Clear and destroy all bullets
+    for bullet in enemy_manager.enemy_bullets:
+        destroy(bullet)
+    enemy_manager.enemy_bullets.clear()
+
+    # Clear and destroy all trail segments
+    for segment in enemy_manager.trail_segments:
+        destroy(segment)
+    enemy_manager.trail_segments.clear()
+
+    # Clear and destroy all obstacles (if applicable)
     for obstacle in obstacle_manager.obstacles:
         destroy(obstacle)
     obstacle_manager.obstacles.clear()
-
-    # Clear and destroy all bullets
-    for bullet in shooting_manager.bullets:
-        destroy(bullet)
-    shooting_manager.bullets.clear()
 
     # Hide the game over screen
     game_over_text.enabled = False
@@ -108,6 +78,9 @@ def quit_game():
 restart_button.on_click = restart_game
 quit_button.on_click = quit_game
 
+# Tilt the camera slightly downward without changing its position
+# camera.rotation_x = 15  # Tilt the camera slightly downward
+
 # Custom update function
 def update():
     if not game_over_text.enabled:  # Only update if the game is not over
@@ -116,18 +89,20 @@ def update():
 
         # Update obstacles and enemies
         obstacle_manager.update()
-        enemy_manager.update()
+        enemy_manager.update(player)  # Pass the player object, not just the position
 
         # Update shooting logic
         shooting_manager.update(enemy_manager.enemies)
 
         # Shoot when spacebar is pressed
         if held_keys['space']:
-            shooting_manager.shoot(aiming_indicator.forward)  # Shoot in the direction of the aiming indicator
+            shooting_manager.shoot(player.entity.forward)  # Shoot in the direction of the player's forward vector
 
-        # Update aiming indicator position and direction
-        aiming_indicator.position = player.entity.position + player.entity.forward * 2  # Move in front of the player
-        aiming_indicator.rotation = player.entity.rotation  # Align with the player's forward direction
+        # Make enemies shoot at the player
+        enemy_manager.shoot_at_player(player.entity.position)
+
+# Set initial player position slightly below the center
+player.entity.position = (0, -2, 0)
 
 # Run the game
 app.run()
