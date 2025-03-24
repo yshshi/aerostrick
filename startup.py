@@ -1,23 +1,25 @@
-# startup.py
 from ursina import *
 
-# Function to create the startup screen
-def create_startup_screen(start_game):
-    # Display the game description text
+def create_startup_screen(start_game_callback):
+    # Create a text element for the description of the game
     start_screen_text = Text(
-        text="Welcome to the Ultimate Space Battle Game!\n\nShoot down the enemies, avoid obstacles, and try to get the highest score!",
-        scale=1.5,
+        text="Welcome to AeroStrick!",
         color=color.white,
-        position=(0, 0.3),
+        scale=2,  # Adjust the scale to make it bigger
+        origin=(0.5, 0.5),  # Center the text horizontally and vertically
+        position=(0.25, 0.2),  # Adjust the vertical position to center
         enabled=True
     )
 
-    # Create the Start Game button
+    # Create a "Start Game" button
     start_button = Button(
         text="Start Game",
-        scale=0.1,
-        position=(0, -0.3),
-        on_click=start_game  # Pass the function that starts the game
+        scale=(0.2, 0.1),  # Scale to make the button large enough
+        position=(0, -0.1),  # Position just below the description
+        color=color.green,
+        on_click=start_game_callback,  # Call the start_game function on click
+        text_color=color.white,
+        highlight_color=color.light_gray
     )
 
     return start_screen_text, start_button
