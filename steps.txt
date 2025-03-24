@@ -1,0 +1,5 @@
+to se excurion --
+Set-ExecutionPolicy Unrestricted -Scope Process
+
+activate env--
+venv\Scripts\Activate.ps1venv\
