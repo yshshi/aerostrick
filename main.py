@@ -7,8 +7,26 @@ from shooting import ShootingManager
 # Initialize the game
 app = Ursina()
 
+high_score = 0
+
+score_text = Text(
+    text="Score: 0",
+    scale=1.5,
+    color=color.white,
+    position=(-0.85, 0.45),  # Top-left corner
+    enabled=True
+)
+
+# Function to update score display
+def update_score(score):
+    score_text.text = f"Score: {score}"
+
 # Function to show the game over screen
 def show_game_over_screen():
+    global high_score
+    if shooting_manager.score > high_score:
+        high_score = shooting_manager.score
+        print(f"New high score: {high_score}")
     game_over_text.enabled = True
     restart_button.enabled = True
     quit_button.enabled = True
@@ -45,6 +63,10 @@ def restart_game():
     # Reset player position
     player.entity.position = (0, -2, 0)  # Move player slightly below the center
 
+    # Reset score
+    shooting_manager.score = 0
+    update_score(0)
+
     # Clear and destroy all enemies
     for enemy in enemy_manager.enemies:
         destroy(enemy)
@@ -74,6 +96,10 @@ def restart_game():
 def quit_game():
     quit()
 
+# # Function to update score display
+# def update_score(score):
+#     score_text.text = f"Score: {score}"
+
 # Assign button actions
 restart_button.on_click = restart_game
 quit_button.on_click = quit_game
@@ -93,6 +119,9 @@ def update():
 
         # Update shooting logic
         shooting_manager.update(enemy_manager.enemies)
+
+        # Update score display
+        update_score(shooting_manager.score)
 
         # Shoot when spacebar is pressed
         if held_keys['space']:

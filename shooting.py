@@ -4,6 +4,7 @@ class ShootingManager:
     def __init__(self, player):
         self.player = player
         self.bullets = []  # List to store active bullets
+        self.score = 0  # Initialize score
 
     def shoot(self, direction):
         # Create a bullet at the player's position
@@ -15,7 +16,7 @@ class ShootingManager:
             collider='sphere'
         )
         # Set the bullet's direction to match the aiming indicator's direction
-        bullet.direction = direction
+        bullet.direction = direction.normalized() * 0.5  # Normalize and set speed
         self.bullets.append(bullet)
         print("Bullet shot!")  # Debugging
 
@@ -26,7 +27,7 @@ class ShootingManager:
         # Move bullets forward
         for bullet in self.bullets[:]:  
             if not bullet.enabled:  # Skip if bullet is already destroyed
-                continue
+                continue    
 
             # Move the bullet in the direction it was shot
             bullet.position += bullet.direction * 1.0  # Adjust speed as needed
@@ -40,6 +41,17 @@ class ShootingManager:
                     print("Enemy hit!")  
                     bullets_to_remove.append(bullet)  # Mark bullet for removal
                     enemies_to_remove.append(enemy)  # Mark enemy for removal
+                    self.score += 10  # Add 10 points per enemy
+                    print(f"Score: {self.score}")  # Debug
+
+                    score_popup = Text(
+                        text="+10",
+                        color=color.green,
+                        position=enemy.position,
+                        scale=2,
+                        billboard=True
+                    )
+                    destroy(score_popup, delay=1)  # Remove after 1 second
                     break  
 
             # Remove bullet if it goes off-screen
